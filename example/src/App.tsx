@@ -1,8 +1,10 @@
-import React from "react";
-import { Task, ViewMode, Gantt } from "gantt-task-react";
-import { ViewSwitcher } from "./components/view-switcher";
+import "@rodcorsi/gantt-task-react/dist/index.css";
+
+import { Gantt, Task, ViewMode } from "@rodcorsi/gantt-task-react";
 import { getStartEndDateForProject, initTasks } from "./helper";
-import "gantt-task-react/dist/index.css";
+
+import React from "react";
+import { ViewSwitcher } from "./components/view-switcher";
 
 // Init
 const App = () => {
