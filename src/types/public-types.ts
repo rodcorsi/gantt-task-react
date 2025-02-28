@@ -28,6 +28,7 @@ export interface Task {
   };
   isDisabled?: boolean;
   project?: string;
+  resource?: string;
   dependencies?: string[];
   hideChildren?: boolean;
   displayOrder?: number;
@@ -73,7 +74,7 @@ export interface EventOption {
    */
   onExpanderClick?: (task: Task) => void;
 }
-
+export type VariantType = "task" | "resource";
 export interface DisplayOption {
   viewMode?: ViewMode;
   viewDate?: Date;
@@ -83,6 +84,7 @@ export interface DisplayOption {
    */
   locale?: string;
   rtl?: boolean;
+  variant?: VariantType;
 }
 
 export interface StylingOption {

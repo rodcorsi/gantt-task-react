@@ -27,6 +27,7 @@ export function initTasks() {
       progress: 45,
       type: "task",
       project: "ProjectSample",
+      resource: "Team 1",
       displayOrder: 2,
     },
     {
@@ -38,6 +39,7 @@ export function initTasks() {
       dependencies: ["Task 0"],
       type: "task",
       project: "ProjectSample",
+      resource: "Team 2",
       displayOrder: 3,
     },
     {
@@ -49,6 +51,7 @@ export function initTasks() {
       dependencies: ["Task 1"],
       type: "task",
       project: "ProjectSample",
+      resource: "Team 1",
       displayOrder: 4,
     },
     {
@@ -60,6 +63,7 @@ export function initTasks() {
       dependencies: ["Task 2"],
       type: "task",
       project: "ProjectSample",
+      resource: "Team 2",
       displayOrder: 5,
     },
     {
@@ -71,6 +75,7 @@ export function initTasks() {
       progress: 70,
       dependencies: ["Task 2"],
       project: "ProjectSample",
+      resource: "Team 1",
       displayOrder: 6,
     },
     {

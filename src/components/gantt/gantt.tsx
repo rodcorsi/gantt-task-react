@@ -1,27 +1,28 @@
+import { GanttProps, Task, ViewMode } from "../../types/public-types";
 import React, {
-  useState,
   SyntheticEvent,
-  useRef,
   useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
-import { ViewMode, GanttProps, Task } from "../../types/public-types";
-import { GridProps } from "../grid/grid";
+import { StandardTooltipContent, Tooltip } from "../other/tooltip";
+import { TaskList, TaskListProps } from "../task-list/task-list";
 import { ganttDateRange, seedDates } from "../../helpers/date-helper";
+import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
+
+import { BarTask } from "../../types/bar-task";
 import { CalendarProps } from "../calendar/calendar";
+import { DateSetup } from "../../types/date-setup";
+import { GanttEvent } from "../../types/gantt-task-actions";
+import { GridProps } from "../grid/grid";
+import { HorizontalScroll } from "../other/horizontal-scroll";
+import { TaskGantt } from "./task-gantt";
 import { TaskGanttContentProps } from "./task-gantt-content";
 import { TaskListHeaderDefault } from "../task-list/task-list-header";
 import { TaskListTableDefault } from "../task-list/task-list-table";
-import { StandardTooltipContent, Tooltip } from "../other/tooltip";
 import { VerticalScroll } from "../other/vertical-scroll";
-import { TaskListProps, TaskList } from "../task-list/task-list";
-import { TaskGantt } from "./task-gantt";
-import { BarTask } from "../../types/bar-task";
 import { convertToBarTasks } from "../../helpers/bar-helper";
-import { GanttEvent } from "../../types/gantt-task-actions";
-import { DateSetup } from "../../types/date-setup";
-import { HorizontalScroll } from "../other/horizontal-scroll";
-import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
 import styles from "./gantt.module.css";
 
 export const Gantt: React.FunctionComponent<GanttProps> = ({
@@ -32,6 +33,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   rowHeight = 50,
   ganttHeight = 0,
   viewMode = ViewMode.Day,
+  variant,
   preStepsCount = 1,
   locale = "en-GB",
   barFill = 60,
@@ -139,7 +141,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
         projectBackgroundColor,
         projectBackgroundSelectedColor,
         milestoneBackgroundColor,
-        milestoneBackgroundSelectedColor
+        milestoneBackgroundSelectedColor,
+        variant
       )
     );
   }, [
@@ -391,6 +394,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     columnWidth,
     svgWidth,
     tasks: tasks,
+    variant,
     rowHeight,
     dates: dateSetup.dates,
     todayColor,
@@ -437,6 +441,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     fontFamily,
     fontSize,
     tasks: barTasks,
+    variant,
     locale,
     headerHeight,
     scrollY,

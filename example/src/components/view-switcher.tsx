@@ -5,13 +5,17 @@ import { ViewMode } from "@rodcorsi/gantt-task-react";
 
 type ViewSwitcherProps = {
   isChecked: boolean;
+  byResource: boolean;
   onViewListChange: (isChecked: boolean) => void;
   onViewModeChange: (viewMode: ViewMode) => void;
+  onByResourceChange: (byResource: boolean) => void;
 };
 export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
   onViewModeChange,
   onViewListChange,
+  onByResourceChange,
   isChecked,
+  byResource,
 }) => {
   return (
     <div className="ViewContainer">
@@ -70,6 +74,17 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
           <span className="Slider" />
         </label>
         Show Task List
+      </div>
+      <div className="Switch">
+        <label className="Switch_Toggle">
+          <input
+            type="checkbox"
+            defaultChecked={byResource}
+            onClick={() => onByResourceChange(!byResource)}
+          />
+          <span className="Slider" />
+        </label>
+        Show By Resource
       </div>
     </div>
   );

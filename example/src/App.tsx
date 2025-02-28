@@ -11,6 +11,7 @@ const App = () => {
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
+  const [byResource, setByResouce] = React.useState(false);
   let columnWidth = 65;
   if (view === ViewMode.Year) {
     columnWidth = 350;
@@ -74,11 +75,14 @@ const App = () => {
       <ViewSwitcher
         onViewModeChange={viewMode => setView(viewMode)}
         onViewListChange={setIsChecked}
+        onByResourceChange={setByResouce}
         isChecked={isChecked}
+        byResource={byResource}
       />
       <h3>Gantt With Unlimited Height</h3>
       <Gantt
         tasks={tasks}
+        variant={byResource ? "resource" : "task"}
         viewMode={view}
         onDateChange={handleTaskChange}
         onDelete={handleTaskDelete}

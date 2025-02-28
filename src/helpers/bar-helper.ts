@@ -1,5 +1,6 @@
-import { Task } from "../types/public-types";
 import { BarTask, TaskTypeInternal } from "../types/bar-task";
+import { Task, VariantType } from "../types/public-types";
+
 import { BarMoveAction } from "../types/gantt-task-actions";
 
 export const convertToBarTasks = (
@@ -20,12 +21,14 @@ export const convertToBarTasks = (
   projectBackgroundColor: string,
   projectBackgroundSelectedColor: string,
   milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string
+  milestoneBackgroundSelectedColor: string,
+  variant: VariantType = "task"
 ) => {
+  const indexer = buildTaskIndexer(tasks, variant);
   let barTasks = tasks.map((t, i) => {
     return convertToBarTask(
       t,
-      i,
+      indexer(i),
       dates,
       columnWidth,
       rowHeight,
@@ -59,6 +62,26 @@ export const convertToBarTasks = (
   });
 
   return barTasks;
+};
+
+const buildTaskIndexer = (tasks: Task[], variant: VariantType) => {
+  const resourcesMap: { [resource: string]: number } = {};
+  if (variant === "resource") {
+    for (const task of tasks) {
+      const resource = task.resource || "";
+      if (!resourcesMap[resource]) {
+        resourcesMap[resource] = 0;
+      }
+    }
+    Object.keys(resourcesMap)
+      .sort()
+      .forEach((resource, index) => {
+        resourcesMap[resource] = index;
+      });
+  }
+  return variant === "resource"
+    ? (i: number) => resourcesMap[tasks[i].resource || ""]
+    : (i: number) => i;
 };
 
 const convertToBarTask = (

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
+import { Task, VariantType } from "../../types/public-types";
+
 import { BarTask } from "../../types/bar-task";
-import { Task } from "../../types/public-types";
 
 export type TaskListProps = {
   headerHeight: number;
@@ -12,6 +13,7 @@ export type TaskListProps = {
   scrollY: number;
   locale: string;
   tasks: Task[];
+  variant?: VariantType;
   taskListRef: React.RefObject<HTMLDivElement>;
   horizontalContainerClass?: string;
   selectedTask: BarTask | undefined;
@@ -44,6 +46,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   rowHeight,
   scrollY,
   tasks,
+  variant,
   selectedTask,
   setSelectedTask,
   onExpanderClick,
@@ -66,6 +69,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     fontFamily,
     fontSize,
     rowWidth,
+    variant,
   };
   const selectedTaskId = selectedTask ? selectedTask.id : "";
   const tableProps = {
@@ -74,6 +78,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     fontFamily,
     fontSize,
     tasks,
+    variant,
     locale,
     selectedTaskId: selectedTaskId,
     setSelectedTask,

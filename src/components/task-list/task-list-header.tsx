@@ -1,4 +1,5 @@
 import React from "react";
+import { VariantType } from "../../types/public-types";
 import styles from "./task-list-header.module.css";
 
 export const TaskListHeaderDefault: React.FC<{
@@ -6,7 +7,8 @@ export const TaskListHeaderDefault: React.FC<{
   rowWidth: string;
   fontFamily: string;
   fontSize: string;
-}> = ({ headerHeight, fontFamily, fontSize, rowWidth }) => {
+  variant?: VariantType;
+}> = ({ headerHeight, fontFamily, fontSize, rowWidth, variant = "task" }) => {
   return (
     <div
       className={styles.ganttTable}
@@ -29,36 +31,40 @@ export const TaskListHeaderDefault: React.FC<{
         >
           &nbsp;Name
         </div>
-        <div
-          className={styles.ganttTable_HeaderSeparator}
-          style={{
-            height: headerHeight * 0.5,
-            marginTop: headerHeight * 0.2,
-          }}
-        />
-        <div
-          className={styles.ganttTable_HeaderItem}
-          style={{
-            minWidth: rowWidth,
-          }}
-        >
-          &nbsp;From
-        </div>
-        <div
-          className={styles.ganttTable_HeaderSeparator}
-          style={{
-            height: headerHeight * 0.5,
-            marginTop: headerHeight * 0.25,
-          }}
-        />
-        <div
-          className={styles.ganttTable_HeaderItem}
-          style={{
-            minWidth: rowWidth,
-          }}
-        >
-          &nbsp;To
-        </div>
+        {variant === "task" && (
+          <React.Fragment>
+            <div
+              className={styles.ganttTable_HeaderSeparator}
+              style={{
+                height: headerHeight * 0.5,
+                marginTop: headerHeight * 0.2,
+              }}
+            />
+            <div
+              className={styles.ganttTable_HeaderItem}
+              style={{
+                minWidth: rowWidth,
+              }}
+            >
+              &nbsp;From
+            </div>
+            <div
+              className={styles.ganttTable_HeaderSeparator}
+              style={{
+                height: headerHeight * 0.5,
+                marginTop: headerHeight * 0.25,
+              }}
+            />
+            <div
+              className={styles.ganttTable_HeaderItem}
+              style={{
+                minWidth: rowWidth,
+              }}
+            >
+              &nbsp;To
+            </div>
+          </React.Fragment>
+        )}
       </div>
     </div>
   );

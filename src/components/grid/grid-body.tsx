@@ -1,11 +1,13 @@
 import React, { ReactNode } from "react";
+import { Task, VariantType } from "../../types/public-types";
 
-import { Task } from "../../types/public-types";
 import { addToDate } from "../../helpers/date-helper";
 import styles from "./grid.module.css";
+import tasksToResources from "../../helpers/tasks-to-resources";
 
 export type GridBodyProps = {
   tasks: Task[];
+  variant?: VariantType;
   dates: Date[];
   svgWidth: number;
   rowHeight: number;
@@ -15,6 +17,7 @@ export type GridBodyProps = {
 };
 export const GridBody: React.FC<GridBodyProps> = ({
   tasks,
+  variant = "task",
   dates,
   rowHeight,
   svgWidth,
@@ -34,10 +37,12 @@ export const GridBody: React.FC<GridBodyProps> = ({
       className={styles.gridRowLine}
     />,
   ];
-  for (const task of tasks) {
+  const rowKeys =
+    variant === "resource" ? tasksToResources(tasks) : tasks.map(t => t.id);
+  for (const rowKey of rowKeys) {
     gridRows.push(
       <rect
-        key={"Row" + task.id}
+        key={"Row" + rowKey}
         x="0"
         y={y}
         width={svgWidth}
@@ -47,7 +52,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
     );
     rowLines.push(
       <line
-        key={"RowLine" + task.id}
+        key={"RowLine" + rowKey}
         x="0"
         y1={y + rowHeight}
         x2={svgWidth}
