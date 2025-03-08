@@ -6,10 +6,12 @@ import { BarTask } from "../../types/bar-task";
 import { GanttContentMoveAction } from "../../types/gantt-task-actions";
 import { Milestone } from "./milestone/milestone";
 import { Project } from "./project/project";
+import { VariantType } from "../../types/public-types";
 import style from "./task-list.module.css";
 
 export type TaskItemProps = {
   task: BarTask;
+  variant: VariantType;
   arrowIndent: number;
   taskHeight: number;
   isProgressChangeable: boolean;
@@ -27,6 +29,7 @@ export type TaskItemProps = {
 export const TaskItem: React.FC<TaskItemProps> = props => {
   const {
     task,
+    variant,
     arrowIndent,
     isDelete,
     taskHeight,
@@ -109,18 +112,20 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       }}
     >
       {taskItem}
-      <text
-        x={getX()}
-        y={task.y + taskHeight * 0.5}
-        className={
-          isTextInside
-            ? style.barLabel
-            : style.barLabel && style.barLabelOutside
-        }
-        ref={textRef}
-      >
-        {task.name}
-      </text>
+      {variant === "resource" && !isTextInside ? null : (
+        <text
+          x={getX()}
+          y={task.y + taskHeight * 0.5}
+          className={
+            isTextInside
+              ? style.barLabel
+              : style.barLabel && style.barLabelOutside
+          }
+          ref={textRef}
+        >
+          {task.name}
+        </text>
+      )}
     </g>
   );
 };

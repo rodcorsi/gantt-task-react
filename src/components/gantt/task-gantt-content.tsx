@@ -37,6 +37,7 @@ export type TaskGanttContentProps = {
 
 export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   tasks,
+  variant,
   dates,
   ganttEvent,
   selectedTask,
@@ -287,6 +288,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
           return (
             <TaskItem
               task={task}
+              variant={variant}
               arrowIndent={arrowIndent}
               taskHeight={taskHeight}
               isProgressChangeable={!!onProgressChange && !task.isDisabled}
