@@ -97,6 +97,7 @@ const App = () => {
       <h3>Gantt With Limited Height</h3>
       <Gantt
         tasks={tasks}
+        variant={byResource ? "resource" : "task"}
         viewMode={view}
         onDateChange={handleTaskChange}
         onDelete={handleTaskDelete}

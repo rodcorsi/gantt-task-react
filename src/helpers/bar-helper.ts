@@ -22,7 +22,7 @@ export const convertToBarTasks = (
   projectBackgroundSelectedColor: string,
   milestoneBackgroundColor: string,
   milestoneBackgroundSelectedColor: string,
-  variant: VariantType = "task"
+  variant: VariantType
 ) => {
   const indexer = buildTaskIndexer(tasks, variant);
   let barTasks = tasks.map((t, i) => {

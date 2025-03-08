@@ -3,17 +3,19 @@ import {
   GanttContentMoveAction,
   GanttEvent,
 } from "../../types/gantt-task-actions";
+import { EventOption, VariantType } from "../../types/public-types";
 import React, { useEffect, useState } from "react";
 
 import { Arrow } from "../other/arrow";
 import { BarTask } from "../../types/bar-task";
-import { EventOption } from "../../types/public-types";
 import { TaskItem } from "../task-item/task-item";
 import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
 import { isKeyboardEvent } from "../../helpers/other-helper";
 
 export type TaskGanttContentProps = {
   tasks: BarTask[];
+  resources: string[];
+  variant: VariantType;
   dates: Date[];
   ganttEvent: GanttEvent;
   selectedTask: BarTask | undefined;

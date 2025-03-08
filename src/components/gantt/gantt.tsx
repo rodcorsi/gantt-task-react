@@ -24,6 +24,7 @@ import { TaskListTableDefault } from "../task-list/task-list-table";
 import { VerticalScroll } from "../other/vertical-scroll";
 import { convertToBarTasks } from "../../helpers/bar-helper";
 import styles from "./gantt.module.css";
+import tasksToResources from "../../helpers/tasks-to-resources";
 
 export const Gantt: React.FunctionComponent<GanttProps> = ({
   tasks,
@@ -33,7 +34,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   rowHeight = 50,
   ganttHeight = 0,
   viewMode = ViewMode.Day,
-  variant,
+  variant = "task",
   preStepsCount = 1,
   locale = "en-GB",
   barFill = 60,
@@ -93,12 +94,14 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   const [selectedTask, setSelectedTask] = useState<BarTask>();
   const [failedTask, setFailedTask] = useState<BarTask | null>(null);
 
-  const svgWidth = dateSetup.dates.length * columnWidth;
-  const ganttFullHeight = barTasks.length * rowHeight;
-
   const [scrollY, setScrollY] = useState(0);
   const [scrollX, setScrollX] = useState(-1);
   const [ignoreScrollEvent, setIgnoreScrollEvent] = useState(false);
+
+  const resources = variant === "resource" ? tasksToResources(tasks) : [];
+  const ganttFullHeight =
+    (variant === "resource" ? resources.length : barTasks.length) * rowHeight;
+  const svgWidth = dateSetup.dates.length * columnWidth;
 
   // task change events
   useEffect(() => {
@@ -252,10 +255,12 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   useEffect(() => {
     if (ganttHeight) {
       setSvgContainerHeight(ganttHeight + headerHeight);
-    } else {
+    } else if (variant === "task") {
       setSvgContainerHeight(tasks.length * rowHeight + headerHeight);
+    } else if (variant === "resource") {
+      setSvgContainerHeight(resources.length * rowHeight + headerHeight);
     }
-  }, [ganttHeight, tasks, headerHeight, rowHeight]);
+  }, [ganttHeight, tasks.length, resources.length, headerHeight, rowHeight]);
 
   // scroll events
   useEffect(() => {
@@ -412,6 +417,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   };
   const barProps: TaskGanttContentProps = {
     tasks: barTasks,
+    resources,
+    variant,
     dates: dateSetup.dates,
     ganttEvent,
     selectedTask,
