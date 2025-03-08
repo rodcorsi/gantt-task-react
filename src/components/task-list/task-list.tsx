@@ -13,7 +13,8 @@ export type TaskListProps = {
   scrollY: number;
   locale: string;
   tasks: Task[];
-  variant?: VariantType;
+  resources: string[];
+  variant: VariantType;
   taskListRef: React.RefObject<HTMLDivElement>;
   horizontalContainerClass?: string;
   selectedTask: BarTask | undefined;
@@ -32,6 +33,8 @@ export type TaskListProps = {
     fontSize: string;
     locale: string;
     tasks: Task[];
+    resources: string[];
+    variant: VariantType;
     selectedTaskId: string;
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
@@ -46,6 +49,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   rowHeight,
   scrollY,
   tasks,
+  resources,
   variant,
   selectedTask,
   setSelectedTask,
@@ -78,6 +82,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     fontFamily,
     fontSize,
     tasks,
+    resources,
     variant,
     locale,
     selectedTaskId: selectedTaskId,

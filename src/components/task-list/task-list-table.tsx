@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { Task, VariantType } from "../../types/public-types";
 
 import styles from "./task-list-table.module.css";
-import tasksToResources from "../../helpers/tasks-to-resources";
 
 const localeDateStringCache: { [key: string]: string } = {};
 const toLocaleDateStringFactory =
@@ -30,7 +29,8 @@ export const TaskListTableDefault: React.FC<{
   fontSize: string;
   locale: string;
   tasks: Task[];
-  variant?: VariantType;
+  resources: string[];
+  variant: VariantType;
   selectedTaskId: string;
   setSelectedTask: (taskId: string) => void;
   onExpanderClick: (task: Task) => void;
@@ -38,7 +38,8 @@ export const TaskListTableDefault: React.FC<{
   rowHeight,
   rowWidth,
   tasks,
-  variant = "task",
+  resources,
+  variant,
   fontFamily,
   fontSize,
   locale,
@@ -48,7 +49,6 @@ export const TaskListTableDefault: React.FC<{
     () => toLocaleDateStringFactory(locale),
     [locale]
   );
-  const resources = variant === "resource" ? tasksToResources(tasks) : [];
   return (
     <div
       className={styles.taskListWrapper}
