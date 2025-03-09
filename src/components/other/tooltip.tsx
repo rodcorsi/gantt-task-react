@@ -20,6 +20,141 @@ export type TooltipProps = {
   fontFamily: string;
   TooltipContent: React.FC<TooltipContentProps>;
 };
+
+type PositionResult = {
+  x: number;
+  y: number;
+};
+
+/**
+ * Calculate the best position for the tooltip to ensure it fits on screen
+ */
+const calculateTooltipPosition = (
+  tooltipWidth: number,
+  tooltipHeight: number,
+  task: BarTask,
+  rowHeight: number,
+  rtl: boolean,
+  svgContainerHeight: number,
+  svgContainerWidth: number,
+  scrollX: number,
+  scrollY: number,
+  arrowIndent: number,
+  headerHeight: number,
+  taskListWidth: number
+): PositionResult => {
+  // Task position (center point)
+  const taskCenterX = rtl ? task.x1 : task.x2;
+  const taskY = task.index * rowHeight - scrollY + headerHeight;
+
+  // Adjusted task position considering taskListWidth
+  const adjustedTaskX = rtl
+    ? taskCenterX - scrollX
+    : taskCenterX + taskListWidth - scrollX;
+
+  // Calculate available space in each direction
+  const spaceRight =
+    taskListWidth + svgContainerWidth - (adjustedTaskX + arrowIndent * 1.5);
+  const spaceLeft = adjustedTaskX - arrowIndent * 1.5;
+  const spaceTop = taskY - headerHeight;
+  const spaceBottom = svgContainerHeight - taskY;
+
+  // Check if tooltip fits in each direction
+  const fitsRight = tooltipWidth < spaceRight;
+  const fitsLeft = tooltipWidth < spaceLeft;
+  const fitsTop = tooltipHeight < spaceTop;
+  const fitsBottom = tooltipHeight < spaceBottom;
+
+  // Determine best position for the tooltip
+  let x: number;
+  let y: number;
+
+  // Prefer right side placement if RTL is false, left side if RTL is true
+  if (rtl) {
+    // RTL logic - prefer left placements
+    if (fitsLeft && fitsTop) {
+      x = adjustedTaskX - arrowIndent * 1.5 - tooltipWidth;
+      y = taskY - tooltipHeight - arrowIndent;
+    } else if (fitsLeft && fitsBottom) {
+      x = adjustedTaskX - arrowIndent * 1.5 - tooltipWidth;
+      y = taskY + arrowIndent;
+    } else if (fitsRight && fitsTop) {
+      x = adjustedTaskX + arrowIndent * 1.5;
+      y = taskY - tooltipHeight - arrowIndent;
+    } else if (fitsRight && fitsBottom) {
+      x = adjustedTaskX + arrowIndent * 1.5;
+      y = taskY + arrowIndent;
+    } else {
+      // Fallback to the position with most space
+      if (spaceLeft >= spaceRight) {
+        // Use left side
+        x = Math.max(0, adjustedTaskX - arrowIndent * 1.5 - tooltipWidth);
+        y =
+          spaceTop >= spaceBottom
+            ? Math.max(headerHeight, taskY - tooltipHeight - arrowIndent)
+            : Math.min(svgContainerHeight - tooltipHeight, taskY + arrowIndent);
+      } else {
+        // Use right side
+        x = Math.min(
+          taskListWidth + svgContainerWidth - tooltipWidth,
+          adjustedTaskX + arrowIndent * 1.5
+        );
+        y =
+          spaceTop >= spaceBottom
+            ? Math.max(headerHeight, taskY - tooltipHeight - arrowIndent)
+            : Math.min(svgContainerHeight - tooltipHeight, taskY + arrowIndent);
+      }
+    }
+  } else {
+    // LTR logic - prefer right placements
+    if (fitsRight && fitsTop) {
+      x = adjustedTaskX + arrowIndent * 1.5;
+      y = taskY - tooltipHeight - arrowIndent;
+    } else if (fitsRight && fitsBottom) {
+      x = adjustedTaskX + arrowIndent * 1.5;
+      y = taskY + arrowIndent;
+    } else if (fitsLeft && fitsTop) {
+      x = adjustedTaskX - arrowIndent * 1.5 - tooltipWidth;
+      y = taskY - tooltipHeight - arrowIndent;
+    } else if (fitsLeft && fitsBottom) {
+      x = adjustedTaskX - arrowIndent * 1.5 - tooltipWidth;
+      y = taskY + arrowIndent;
+    } else {
+      // Fallback to the position with most space
+      if (spaceRight >= spaceLeft) {
+        // Use right side
+        x = Math.min(
+          taskListWidth + svgContainerWidth - tooltipWidth,
+          adjustedTaskX + arrowIndent * 1.5
+        );
+        y =
+          spaceTop >= spaceBottom
+            ? Math.max(headerHeight, taskY - tooltipHeight - arrowIndent)
+            : Math.min(svgContainerHeight - tooltipHeight, taskY + arrowIndent);
+      } else {
+        // Use left side
+        x = Math.max(
+          taskListWidth,
+          adjustedTaskX - arrowIndent * 1.5 - tooltipWidth
+        );
+        y =
+          spaceTop >= spaceBottom
+            ? Math.max(headerHeight, taskY - tooltipHeight - arrowIndent)
+            : Math.min(svgContainerHeight - tooltipHeight, taskY + arrowIndent);
+      }
+    }
+  }
+
+  // Ensure tooltip stays within boundaries
+  x = Math.max(
+    taskListWidth,
+    Math.min(taskListWidth + svgContainerWidth - tooltipWidth, x)
+  );
+  y = Math.max(headerHeight, Math.min(svgContainerHeight - tooltipHeight, y));
+
+  return { x, y };
+};
+
 export const Tooltip: React.FC<TooltipProps> = ({
   task,
   rowHeight,
@@ -38,47 +173,29 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [relatedY, setRelatedY] = useState(0);
   const [relatedX, setRelatedX] = useState(0);
+
   useEffect(() => {
     if (tooltipRef.current) {
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
       const tooltipWidth = tooltipRef.current.offsetWidth * 1.1;
 
-      let newRelatedY = task.index * rowHeight - scrollY + headerHeight;
-      let newRelatedX: number;
-      if (rtl) {
-        newRelatedX = task.x1 - arrowIndent * 1.5 - tooltipWidth - scrollX;
-        if (newRelatedX < 0) {
-          newRelatedX = task.x2 + arrowIndent * 1.5 - scrollX;
-        }
-        const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
-        if (tooltipLeftmostPoint > svgContainerWidth) {
-          newRelatedX = svgContainerWidth - tooltipWidth;
-          newRelatedY += rowHeight;
-        }
-      } else {
-        newRelatedX = task.x2 + arrowIndent * 1.5 + taskListWidth - scrollX;
-        const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
-        const fullChartWidth = taskListWidth + svgContainerWidth;
-        if (tooltipLeftmostPoint > fullChartWidth) {
-          newRelatedX =
-            task.x1 +
-            taskListWidth -
-            arrowIndent * 1.5 -
-            scrollX -
-            tooltipWidth;
-        }
-        if (newRelatedX < taskListWidth) {
-          newRelatedX = svgContainerWidth + taskListWidth - tooltipWidth;
-          newRelatedY += rowHeight;
-        }
-      }
+      const { x, y } = calculateTooltipPosition(
+        tooltipWidth,
+        tooltipHeight,
+        task,
+        rowHeight,
+        rtl,
+        svgContainerHeight,
+        svgContainerWidth,
+        scrollX,
+        scrollY,
+        arrowIndent,
+        headerHeight,
+        taskListWidth
+      );
 
-      const tooltipLowerPoint = tooltipHeight + newRelatedY - scrollY;
-      if (tooltipLowerPoint > svgContainerHeight - scrollY) {
-        newRelatedY = svgContainerHeight - tooltipHeight;
-      }
-      setRelatedY(newRelatedY);
-      setRelatedX(newRelatedX);
+      setRelatedY(y);
+      setRelatedX(x);
     }
   }, [
     tooltipRef,
