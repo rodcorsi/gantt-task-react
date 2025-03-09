@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import { Task, VariantType } from "../../types/public-types";
 
+import { TaskListTableProps } from "../../types/public-types";
 import styles from "./task-list-table.module.css";
 
 const localeDateStringCache: { [key: string]: string } = {};
@@ -22,19 +22,7 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
   day: "numeric",
 };
 
-export const TaskListTableDefault: React.FC<{
-  rowHeight: number;
-  rowWidth: string;
-  fontFamily: string;
-  fontSize: string;
-  locale: string;
-  tasks: Task[];
-  resources: string[];
-  variant: VariantType;
-  selectedTaskId: string;
-  setSelectedTask: (taskId: string) => void;
-  onExpanderClick: (task: Task) => void;
-}> = ({
+export const TaskListTableDefault: React.FC<TaskListTableProps> = ({
   rowHeight,
   rowWidth,
   tasks,

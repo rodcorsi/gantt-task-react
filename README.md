@@ -63,6 +63,7 @@ npm start
 | Parameter Name                  | Type          | Description                                        |
 | :------------------------------ | :------------ | :------------------------------------------------- |
 | tasks\*                         | [Task](#Task) | Tasks array.                                       |
+| variant                         | task resource | Exhibition method (default task).                  |
 | [EventOption](#EventOption)     | interface     | Specifies gantt events.                            |
 | [DisplayOption](#DisplayOption) | interface     | Specifies view type and display timeline language. |
 | [StylingOption](#StylingOption) | interface     | Specifies chart and global tasks styles            |
@@ -117,9 +118,9 @@ npm start
 | TaskListHeader             |        | Specifies the task list Header view                                                            |
 | TaskListTable              |        | Specifies the task list Table view                                                             |
 
-- TooltipContent: [`React.FC<{ task: Task; fontSize: string; fontFamily: string; }>;`](https://github.com/MaTeMaTuK/gantt-task-react/blob/main/src/components/other/tooltip.tsx#L56)
-- TaskListHeader: `React.FC<{ headerHeight: number; rowWidth: string; fontFamily: string; fontSize: string;}>;`
-- TaskListTable: `React.FC<{ rowHeight: number; rowWidth: string; fontFamily: string; fontSize: string; locale: string; tasks: Task[]; selectedTaskId: string; setSelectedTask: (taskId: string) => void; }>;`
+- TooltipContent: [`React.FC<TooltipContentProps>;`](https://github.com/MaTeMaTuK/gantt-task-react/blob/main/src/components/other/tooltip.tsx#L56)
+- TaskListHeader: `React.FC<TaskListHeaderProps>;`
+- TaskListTable: `React.FC<TaskListTableProps>;`
 
 ### Task
 
@@ -140,6 +141,7 @@ npm start
 | isDisabled     | bool     | Disables all action for current task.                                                                 |
 | fontSize       | string   | Specifies the taskbar font size locally.                                                              |
 | project        | string   | Task project name                                                                                     |
+| resource       | string   | Task resource                                                                                     |
 | hideChildren   | bool     | Hide children items. Parameter works with project type only                                           |
 
 \*Required

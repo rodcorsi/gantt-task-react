@@ -1,14 +1,14 @@
 import React from "react";
-import { VariantType } from "../../types/public-types";
+import { TaskListHeaderProps } from "../../types/public-types";
 import styles from "./task-list-header.module.css";
 
-export const TaskListHeaderDefault: React.FC<{
-  headerHeight: number;
-  rowWidth: string;
-  fontFamily: string;
-  fontSize: string;
-  variant?: VariantType;
-}> = ({ headerHeight, fontFamily, fontSize, rowWidth, variant = "task" }) => {
+export const TaskListHeaderDefault: React.FC<TaskListHeaderProps> = ({
+  headerHeight,
+  fontFamily,
+  fontSize,
+  rowWidth,
+  variant = "task",
+}) => {
   return (
     <div
       className={styles.ganttTable}
