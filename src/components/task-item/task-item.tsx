@@ -7,7 +7,7 @@ import { GanttContentMoveAction } from "../../types/gantt-task-actions";
 import { Milestone } from "./milestone/milestone";
 import { Project } from "./project/project";
 import { VariantType } from "../../types/public-types";
-import style from "./task-list.module.css";
+import style from "./task-item.module.css";
 
 export type TaskItemProps = {
   task: BarTask;

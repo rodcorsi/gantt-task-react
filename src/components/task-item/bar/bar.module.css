@@ -9,7 +9,7 @@
 }
 
 .barHandle {
-  fill: #ddd;
+  fill: var(--gantt-handle-color, #ddd);
   cursor: ew-resize;
   opacity: 0;
   visibility: hidden;

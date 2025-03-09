@@ -122,6 +122,26 @@ npm start
 - TaskListHeader: `React.FC<TaskListHeaderProps>;`
 - TaskListTable: `React.FC<TaskListTableProps>;`
 
+### CSS Variables
+
+You can customize the appearance by overriding CSS variables in your application:
+
+```css
+:root {
+  /* Colors */
+  --gantt-text-color: #333;
+  --gantt-alternate-text-color: #555;
+
+  --gantt-background-color: #fff;
+  --gantt-alternate-background-color: #f5f5f5;
+
+  --gantt-border-color: #e0e0e0;
+
+  --gantt-handle-color: #ddd;
+  --gantt-expander-color: rgb(86, 86, 86);
+}
+```
+
 ### Task
 
 | Parameter Name | Type     | Description                                                                                           |
