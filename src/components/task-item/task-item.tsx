@@ -1,11 +1,10 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-
 import { Bar } from "./bar/bar";
 import { BarSmall } from "./bar/bar-small";
 import { BarTask } from "../../types/bar-task";
 import { GanttContentMoveAction } from "../../types/gantt-task-actions";
 import { Milestone } from "./milestone/milestone";
 import { Project } from "./project/project";
+import React from "react";
 import { VariantType } from "../../types/public-types";
 import style from "./task-item.module.css";
 
@@ -19,6 +18,7 @@ export type TaskItemProps = {
   isDelete: boolean;
   isSelected: boolean;
   rtl: boolean;
+  textWidth: number;
   onEventStart: (
     action: GanttContentMoveAction,
     selectedTask: BarTask,
@@ -27,62 +27,10 @@ export type TaskItemProps = {
 };
 
 export const TaskItem: React.FC<TaskItemProps> = props => {
-  const {
-    task,
-    variant,
-    arrowIndent,
-    isDelete,
-    taskHeight,
-    isSelected,
-    rtl,
-    onEventStart,
-  } = {
+  const { task, variant, isDelete, taskHeight, textWidth, onEventStart } = {
     ...props,
   };
-  const textRef = useRef<SVGTextElement>(null);
-  const [taskItem, setTaskItem] = useState<ReactNode>(<div />);
-  const [isTextInside, setIsTextInside] = useState(true);
-
-  useEffect(() => {
-    switch (task.typeInternal) {
-      case "milestone":
-        setTaskItem(<Milestone {...props} />);
-        break;
-      case "project":
-        setTaskItem(<Project {...props} />);
-        break;
-      case "smalltask":
-        setTaskItem(<BarSmall {...props} />);
-        break;
-      default:
-        setTaskItem(<Bar {...props} />);
-        break;
-    }
-  }, [task, isSelected]);
-
-  useEffect(() => {
-    if (textRef.current) {
-      setIsTextInside(textRef.current.getBBox().width < task.x2 - task.x1);
-    }
-  }, [textRef, task]);
-
-  const getX = () => {
-    const width = task.x2 - task.x1;
-    const hasChild = task.barChildren.length > 0;
-    if (isTextInside) {
-      return task.x1 + width * 0.5;
-    }
-    if (rtl && textRef.current) {
-      return (
-        task.x1 -
-        textRef.current.getBBox().width -
-        arrowIndent * +hasChild -
-        arrowIndent * 0.2
-      );
-    } else {
-      return task.x1 + width + arrowIndent * +hasChild + arrowIndent * 0.2;
-    }
-  };
+  const isTextInside = textWidth < task.x2 - task.x1;
 
   return (
     <g
@@ -111,17 +59,16 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
         onEventStart("select", task);
       }}
     >
-      {taskItem}
+      <SwitchTaskItem {...props} />
       {variant === "resource" && !isTextInside ? null : (
         <text
-          x={getX()}
+          x={getX(isTextInside, props)}
           y={task.y + taskHeight * 0.5}
           className={
             isTextInside
               ? style.barLabel
               : style.barLabel && style.barLabelOutside
           }
-          ref={textRef}
         >
           {task.name}
         </text>
@@ -129,3 +76,32 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     </g>
   );
 };
+
+const SwitchTaskItem: React.FC<TaskItemProps> = props => {
+  switch (props.task.typeInternal) {
+    case "milestone":
+      return <Milestone {...props} />;
+    case "project":
+      return <Project {...props} />;
+    case "smalltask":
+      return <BarSmall {...props} />;
+    default:
+      return <Bar {...props} />;
+  }
+};
+
+function getX(
+  isTextInside: boolean,
+  { task, textWidth, rtl, arrowIndent }: TaskItemProps
+) {
+  const width = task.x2 - task.x1;
+  const hasChild = task.barChildren.length > 0;
+  if (isTextInside) {
+    return task.x1 + width * 0.5;
+  }
+  if (rtl) {
+    return task.x1 - textWidth - arrowIndent * +hasChild - arrowIndent * 0.2;
+  } else {
+    return task.x1 + width + arrowIndent * +hasChild + arrowIndent * 0.2;
+  }
+}

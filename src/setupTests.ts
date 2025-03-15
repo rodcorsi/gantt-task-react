@@ -22,23 +22,36 @@ if (
   });
 }
 
-// Mock getBBox if it's not implemented in jsdom, likely on SVGTextElement
-if (
-  typeof SVGElement !== "undefined" &&
-  !SVGElement.prototype.hasOwnProperty("getBBox")
-) {
-  Object.defineProperty(SVGElement.prototype, "getBBox", {
-    value: function () {
+// Mock HTMLCanvasElement.prototype.getContext
+{
+  Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+    value: function (contextType: string) {
       return {
-        // Minimal mock of SVGRect returned by getBBox
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+        fillRect: vi.fn(),
+        clearRect: vi.fn(),
+        getImageData: vi.fn(() => ({
+          data: new Array(4).fill(0),
+        })),
+        putImageData: vi.fn(),
+        createImageData: vi.fn(() => []),
+        setTransform: vi.fn(),
+        drawImage: vi.fn(),
+        save: vi.fn(),
+        restore: vi.fn(),
+        beginPath: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        closePath: vi.fn(),
+        stroke: vi.fn(),
+        translate: vi.fn(),
+        scale: vi.fn(),
+        rotate: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+        measureText: vi.fn(() => ({ width: 0 })),
+        transform: vi.fn(),
+        rect: vi.fn(),
+        clip: vi.fn(),
       };
     },
     writable: true,

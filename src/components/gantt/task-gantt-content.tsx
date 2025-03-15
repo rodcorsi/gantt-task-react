@@ -11,6 +11,7 @@ import { BarTask } from "../../types/bar-task";
 import { TaskItem } from "../task-item/task-item";
 import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
 import { isKeyboardEvent } from "../../helpers/other-helper";
+import measureTextWidth from "../../helpers/measure-text-width";
 
 export type TaskGanttContentProps = {
   tasks: BarTask[];
@@ -64,7 +65,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   const [xStep, setXStep] = useState(0);
   const [initEventX1Delta, setInitEventX1Delta] = useState(0);
   const [isMoving, setIsMoving] = useState(false);
-
+  const textMeasure = measureTextWidth(fontSize, fontFamily);
   // create xStep
   useEffect(() => {
     const dateDelta =
@@ -295,6 +296,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               isDateChangeable={!!onDateChange && !task.isDisabled}
               isDelete={!task.isDisabled}
               onEventStart={handleBarEventStart}
+              textWidth={textMeasure(task.name)}
               key={task.id}
               isSelected={!!selectedTask && task.id === selectedTask.id}
               rtl={rtl}
