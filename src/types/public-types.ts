@@ -131,7 +131,7 @@ export interface TaskListHeaderProps {
   rowWidth: string;
   fontFamily: string;
   fontSize: string;
-  variant?: VariantType;
+  variant: VariantType;
 }
 export interface TaskListTableProps {
   rowHeight: number;

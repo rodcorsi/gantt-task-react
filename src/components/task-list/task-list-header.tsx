@@ -7,7 +7,7 @@ export const TaskListHeaderDefault: React.FC<TaskListHeaderProps> = ({
   fontFamily,
   fontSize,
   rowWidth,
-  variant = "task",
+  variant,
 }) => {
   return (
     <div
