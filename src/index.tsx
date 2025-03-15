@@ -6,4 +6,8 @@ export type {
   StylingOption,
   DisplayOption,
   EventOption,
+  TaskListHeaderProps,
+  TaskListTableProps,
+  TooltipContentProps,
+  VariantType,
 } from "./types/public-types";
