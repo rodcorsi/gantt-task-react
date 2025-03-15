@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 const __dirname = import.meta.dirname;
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/",
+  base: "./",
   plugins: [react()],
   test: {
     globals: true,

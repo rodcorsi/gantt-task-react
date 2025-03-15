@@ -1,4 +1,4 @@
-import "@rodcorsi/gantt-task-react/dist/index.css";
+import "@rodcorsi/gantt-task-react/dist/gantt-task-react.css";
 
 import { Gantt, Task, ViewMode } from "@rodcorsi/gantt-task-react";
 import React, { Profiler } from "react";

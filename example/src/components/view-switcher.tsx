@@ -1,5 +1,3 @@
-import "@rodcorsi/gantt-task-react/dist/index.css";
-
 import React from "react";
 import { ViewMode } from "@rodcorsi/gantt-task-react";
 

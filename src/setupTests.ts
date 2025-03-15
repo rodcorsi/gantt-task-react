@@ -25,7 +25,7 @@ if (
 // Mock HTMLCanvasElement.prototype.getContext
 {
   Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
-    value: function (contextType: string) {
+    value: function (_: string) {
       return {
         fillRect: vi.fn(),
         clearRect: vi.fn(),
