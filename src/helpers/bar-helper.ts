@@ -3,50 +3,40 @@ import { Task, VariantType } from "../types/public-types";
 
 import { BarMoveAction } from "../types/gantt-task-actions";
 
-export const convertToBarTasks = (
-  tasks: Task[],
-  dates: Date[],
-  columnWidth: number,
-  rowHeight: number,
-  taskHeight: number,
-  barCornerRadius: number,
-  handleWidth: number,
-  rtl: boolean,
-  barProgressColor: string,
-  barProgressSelectedColor: string,
-  barBackgroundColor: string,
-  barBackgroundSelectedColor: string,
-  projectProgressColor: string,
-  projectProgressSelectedColor: string,
-  projectBackgroundColor: string,
-  projectBackgroundSelectedColor: string,
-  milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string,
-  variant: VariantType
-) => {
-  const indexer = buildTaskIndexer(tasks, variant);
-  let barTasks = tasks.map((t, i) => {
-    return convertToBarTask(
-      t,
-      indexer(i),
-      dates,
-      columnWidth,
-      rowHeight,
-      taskHeight,
-      barCornerRadius,
-      handleWidth,
-      rtl,
-      barProgressColor,
-      barProgressSelectedColor,
-      barBackgroundColor,
-      barBackgroundSelectedColor,
-      projectProgressColor,
-      projectProgressSelectedColor,
-      projectBackgroundColor,
-      projectBackgroundSelectedColor,
-      milestoneBackgroundColor,
-      milestoneBackgroundSelectedColor
-    );
+export type ConvertToBarTasksArgs = {
+  tasks: Task[];
+  variant: VariantType;
+  dates: Date[];
+  columnWidth: number;
+  rowHeight: number;
+  taskHeight: number;
+  barCornerRadius: number;
+  handleWidth: number;
+  rtl: boolean;
+  barProgressColor: string;
+  barProgressSelectedColor: string;
+  barBackgroundColor: string;
+  barBackgroundSelectedColor: string;
+  projectProgressColor: string;
+  projectProgressSelectedColor: string;
+  projectBackgroundColor: string;
+  projectBackgroundSelectedColor: string;
+  milestoneBackgroundColor: string;
+  milestoneBackgroundSelectedColor: string;
+};
+export const convertToBarTasks = ({
+  tasks,
+  variant,
+  ...restArgs
+}: ConvertToBarTasksArgs) => {
+  const rowIndexer = buildTaskRowIndexer(tasks, variant);
+  let barTasks = tasks.map((task, index) => {
+    return convertToBarTask({
+      task,
+      index,
+      rowIndex: rowIndexer(index),
+      ...restArgs,
+    });
   });
 
   // set dependencies
@@ -64,7 +54,7 @@ export const convertToBarTasks = (
   return barTasks;
 };
 
-const buildTaskIndexer = (tasks: Task[], variant: VariantType) => {
+const buildTaskRowIndexer = (tasks: Task[], variant: VariantType) => {
   const resourcesMap: { [resource: string]: number } = {};
   if (variant === "resource") {
     for (const task of tasks) {
@@ -84,96 +74,64 @@ const buildTaskIndexer = (tasks: Task[], variant: VariantType) => {
     : (i: number) => i;
 };
 
-const convertToBarTask = (
-  task: Task,
-  index: number,
-  dates: Date[],
-  columnWidth: number,
-  rowHeight: number,
-  taskHeight: number,
-  barCornerRadius: number,
-  handleWidth: number,
-  rtl: boolean,
-  barProgressColor: string,
-  barProgressSelectedColor: string,
-  barBackgroundColor: string,
-  barBackgroundSelectedColor: string,
-  projectProgressColor: string,
-  projectProgressSelectedColor: string,
-  projectBackgroundColor: string,
-  projectBackgroundSelectedColor: string,
-  milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string
-): BarTask => {
+type ConvertToBarTaskArgs = {
+  task: Task;
+  index: number;
+  rowIndex: number;
+  dates: Date[];
+  columnWidth: number;
+  rowHeight: number;
+  taskHeight: number;
+  barCornerRadius: number;
+  handleWidth: number;
+  rtl: boolean;
+  barProgressColor: string;
+  barProgressSelectedColor: string;
+  barBackgroundColor: string;
+  barBackgroundSelectedColor: string;
+  projectProgressColor: string;
+  projectProgressSelectedColor: string;
+  projectBackgroundColor: string;
+  projectBackgroundSelectedColor: string;
+  milestoneBackgroundColor: string;
+  milestoneBackgroundSelectedColor: string;
+};
+const convertToBarTask = (args: ConvertToBarTaskArgs): BarTask => {
   let barTask: BarTask;
-  switch (task.type) {
+  switch (args.task.type) {
     case "milestone":
-      barTask = convertToMilestone(
-        task,
-        index,
-        dates,
-        columnWidth,
-        rowHeight,
-        taskHeight,
-        barCornerRadius,
-        handleWidth,
-        milestoneBackgroundColor,
-        milestoneBackgroundSelectedColor
-      );
+      barTask = convertToMilestone(args);
       break;
     case "project":
-      barTask = convertToBar(
-        task,
-        index,
-        dates,
-        columnWidth,
-        rowHeight,
-        taskHeight,
-        barCornerRadius,
-        handleWidth,
-        rtl,
-        projectProgressColor,
-        projectProgressSelectedColor,
-        projectBackgroundColor,
-        projectBackgroundSelectedColor
-      );
+      barTask = convertToBar(args);
       break;
     default:
-      barTask = convertToBar(
-        task,
-        index,
-        dates,
-        columnWidth,
-        rowHeight,
-        taskHeight,
-        barCornerRadius,
-        handleWidth,
-        rtl,
-        barProgressColor,
-        barProgressSelectedColor,
-        barBackgroundColor,
-        barBackgroundSelectedColor
-      );
+      barTask = convertToBar(args);
       break;
   }
   return barTask;
 };
 
-const convertToBar = (
-  task: Task,
-  index: number,
-  dates: Date[],
-  columnWidth: number,
-  rowHeight: number,
-  taskHeight: number,
-  barCornerRadius: number,
-  handleWidth: number,
-  rtl: boolean,
-  barProgressColor: string,
-  barProgressSelectedColor: string,
-  barBackgroundColor: string,
-  barBackgroundSelectedColor: string
-): BarTask => {
+const convertToBar = ({
+  task,
+  index,
+  rowIndex,
+  dates,
+  columnWidth,
+  rowHeight,
+  taskHeight,
+  barCornerRadius,
+  handleWidth,
+  rtl,
+  barProgressColor,
+  barProgressSelectedColor,
+  barBackgroundColor,
+  barBackgroundSelectedColor,
+  projectProgressColor,
+  projectProgressSelectedColor,
+  projectBackgroundColor,
+  projectBackgroundSelectedColor,
+}: ConvertToBarTaskArgs): BarTask => {
   let x1: number;
   let x2: number;
   if (rtl) {
@@ -195,16 +153,25 @@ const convertToBar = (
     task.progress,
     rtl
   );
-  const y = taskYCoordinate(index, rowHeight, taskHeight);
+  const y = taskYCoordinate(rowIndex, rowHeight, taskHeight);
   const hideChildren = task.type === "project" ? task.hideChildren : undefined;
 
-  const styles = {
-    backgroundColor: barBackgroundColor,
-    backgroundSelectedColor: barBackgroundSelectedColor,
-    progressColor: barProgressColor,
-    progressSelectedColor: barProgressSelectedColor,
-    ...task.styles,
-  };
+  const styles =
+    task.type === "project"
+      ? {
+          backgroundColor: projectBackgroundColor,
+          backgroundSelectedColor: projectBackgroundSelectedColor,
+          progressColor: projectProgressColor,
+          progressSelectedColor: projectProgressSelectedColor,
+          ...task.styles,
+        }
+      : {
+          backgroundColor: barBackgroundColor,
+          backgroundSelectedColor: barBackgroundSelectedColor,
+          progressColor: barProgressColor,
+          progressSelectedColor: barProgressSelectedColor,
+          ...task.styles,
+        };
   return {
     ...task,
     typeInternal,
@@ -212,6 +179,7 @@ const convertToBar = (
     x2,
     y,
     index,
+    rowIndex,
     progressX,
     progressWidth,
     barCornerRadius,
@@ -223,20 +191,21 @@ const convertToBar = (
   };
 };
 
-const convertToMilestone = (
-  task: Task,
-  index: number,
-  dates: Date[],
-  columnWidth: number,
-  rowHeight: number,
-  taskHeight: number,
-  barCornerRadius: number,
-  handleWidth: number,
-  milestoneBackgroundColor: string,
-  milestoneBackgroundSelectedColor: string
-): BarTask => {
+const convertToMilestone = ({
+  task,
+  index,
+  rowIndex,
+  dates,
+  columnWidth,
+  rowHeight,
+  taskHeight,
+  barCornerRadius,
+  handleWidth,
+  milestoneBackgroundColor,
+  milestoneBackgroundSelectedColor,
+}: ConvertToBarTaskArgs): BarTask => {
   const x = taskXCoordinate(task.start, dates, columnWidth);
-  const y = taskYCoordinate(index, rowHeight, taskHeight);
+  const y = taskYCoordinate(rowIndex, rowHeight, taskHeight);
 
   const x1 = x - taskHeight * 0.5;
   const x2 = x + taskHeight * 0.5;
@@ -256,6 +225,7 @@ const convertToMilestone = (
     x2,
     y,
     index,
+    rowIndex,
     progressX: 0,
     progressWidth: 0,
     barCornerRadius,

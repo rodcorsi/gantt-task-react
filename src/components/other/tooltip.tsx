@@ -45,7 +45,7 @@ const calculateTooltipPosition = (
 ): PositionResult => {
   // Task position (center point)
   const taskCenterX = rtl ? task.x1 : task.x2;
-  const taskY = task.index * rowHeight - scrollY + headerHeight;
+  const taskY = task.rowIndex * rowHeight - scrollY + headerHeight;
 
   // Adjusted task position considering taskListWidth
   const adjustedTaskX = rtl

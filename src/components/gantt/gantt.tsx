@@ -126,9 +126,9 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     }
     setDateSetup({ dates: newDates, viewMode });
     setBarTasks(
-      convertToBarTasks(
-        filteredTasks,
-        newDates,
+      convertToBarTasks({
+        tasks: filteredTasks,
+        dates: newDates,
         columnWidth,
         rowHeight,
         taskHeight,
@@ -145,8 +145,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
         projectBackgroundSelectedColor,
         milestoneBackgroundColor,
         milestoneBackgroundSelectedColor,
-        variant
-      )
+        variant,
+      })
     );
   }, [
     tasks,
@@ -244,7 +244,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     if (taskListRef.current) {
       setTaskListWidth(taskListRef.current.offsetWidth);
     }
-  }, [taskListRef, listCellWidth]);
+  }, [taskListRef.current, listCellWidth, variant]);
 
   useEffect(() => {
     if (wrapperRef.current) {
