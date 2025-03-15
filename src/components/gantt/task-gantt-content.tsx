@@ -197,6 +197,56 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     setGanttEvent,
   ]);
 
+  const getTaskByIndex = (taskIndex?: string) => {
+    if (taskIndex) {
+      return tasks[parseInt(taskIndex)];
+    }
+    return;
+  };
+
+  const handleOnKeyDown: React.KeyboardEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    if (task && !task.isDisabled && e.key === "Delete") {
+      handleBarEventStart("delete", task, e);
+    }
+    e.stopPropagation();
+  };
+  const handleOnMouseEnter: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("mouseenter", task, e);
+  };
+  const handleOnMouseLeave: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("mouseleave", task, e);
+  };
+  const handleOnDoubleClick: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("dblclick", task, e);
+  };
+  const handleOnClick: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("click", task, e);
+  };
+  const handleOnFocus: React.FocusEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("select", task);
+  };
+  const handleOnMouseDownMove: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("move", task, e);
+  };
+  const handleOnMouseDownProgress: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("progress", task, e);
+  };
+  const handleOnMouseDownStart: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("start", task, e);
+  };
+  const handleOnMouseDownEnd: React.MouseEventHandler<SVGGElement> = e => {
+    const task = getTaskByIndex(e.currentTarget.dataset.task_index);
+    task && handleBarEventStart("end", task, e);
+  };
   /**
    * Method is Start point of task change
    */
@@ -294,12 +344,20 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               taskHeight={taskHeight}
               isProgressChangeable={!!onProgressChange && !task.isDisabled}
               isDateChangeable={!!onDateChange && !task.isDisabled}
-              isDelete={!task.isDisabled}
-              onEventStart={handleBarEventStart}
               textWidth={textMeasure(task.name)}
               key={task.id}
               isSelected={!!selectedTask && task.id === selectedTask.id}
               rtl={rtl}
+              onKeyDown={handleOnKeyDown}
+              onMouseEnter={handleOnMouseEnter}
+              onMouseLeave={handleOnMouseLeave}
+              onDoubleClick={handleOnDoubleClick}
+              onClick={handleOnClick}
+              onFocus={handleOnFocus}
+              onMouseDownMove={handleOnMouseDownMove}
+              onMouseDownProgress={handleOnMouseDownProgress}
+              onMouseDownStart={handleOnMouseDownStart}
+              onMouseDownEnd={handleOnMouseDownEnd}
             />
           );
         })}

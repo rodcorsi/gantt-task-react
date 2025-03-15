@@ -4,14 +4,16 @@ import styles from "./bar.module.css";
 type BarDateHandleProps = {
   x: number;
   y: number;
+  taskIndex: number;
   width: number;
   height: number;
   barCornerRadius: number;
-  onMouseDown: (event: React.MouseEvent<SVGRectElement, MouseEvent>) => void;
+  onMouseDown: React.MouseEventHandler<SVGGElement>;
 };
 export const BarDateHandle: React.FC<BarDateHandleProps> = ({
   x,
   y,
+  taskIndex,
   width,
   height,
   barCornerRadius,
@@ -23,6 +25,7 @@ export const BarDateHandle: React.FC<BarDateHandleProps> = ({
       y={y}
       width={width}
       height={height}
+      data-task_index={taskIndex}
       className={styles.barHandle}
       ry={barCornerRadius}
       rx={barCornerRadius}

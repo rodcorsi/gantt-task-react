@@ -5,21 +5,21 @@ import styles from "./milestone.module.css";
 export const Milestone: React.FC<TaskItemProps> = ({
   task,
   isDateChangeable,
-  onEventStart,
   isSelected,
+  onMouseDownMove,
 }) => {
-  const transform = `rotate(45 ${task.x1 + task.height * 0.356} 
+  const transform = `rotate(45 ${task.x1 + task.height * 0.356}
     ${task.y + task.height * 0.85})`;
-  const getBarColor = () => {
-    return isSelected
-      ? task.styles.backgroundSelectedColor
-      : task.styles.backgroundColor;
-  };
 
   return (
     <g tabIndex={0} className={styles.milestoneWrapper}>
       <rect
-        fill={getBarColor()}
+        data-task_index={task.index}
+        fill={
+          isSelected
+            ? task.styles.backgroundSelectedColor
+            : task.styles.backgroundColor
+        }
         x={task.x1}
         width={task.height}
         y={task.y}
@@ -28,9 +28,7 @@ export const Milestone: React.FC<TaskItemProps> = ({
         ry={task.barCornerRadius}
         transform={transform}
         className={styles.milestoneBackground}
-        onMouseDown={e => {
-          isDateChangeable && onEventStart("move", task, e);
-        }}
+        onMouseDown={isDateChangeable ? onMouseDownMove : undefined}
       />
     </g>
   );

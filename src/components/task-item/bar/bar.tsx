@@ -1,9 +1,9 @@
-import React from "react";
-import { getProgressPoint } from "../../../helpers/bar-helper";
-import { BarDisplay } from "./bar-display";
 import { BarDateHandle } from "./bar-date-handle";
+import { BarDisplay } from "./bar-display";
 import { BarProgressHandle } from "./bar-progress-handle";
+import React from "react";
 import { TaskItemProps } from "../task-item";
+import { getProgressPoint } from "../../../helpers/bar-helper";
 import styles from "./bar.module.css";
 
 export const Bar: React.FC<TaskItemProps> = ({
@@ -11,8 +11,11 @@ export const Bar: React.FC<TaskItemProps> = ({
   isProgressChangeable,
   isDateChangeable,
   rtl,
-  onEventStart,
   isSelected,
+  onMouseDownMove,
+  onMouseDownStart,
+  onMouseDownEnd,
+  onMouseDownProgress,
 }) => {
   const progressPoint = getProgressPoint(
     +!rtl * task.progressWidth + task.progressX,
@@ -25,6 +28,7 @@ export const Bar: React.FC<TaskItemProps> = ({
       <BarDisplay
         x={task.x1}
         y={task.y}
+        taskIndex={task.index}
         width={task.x2 - task.x1}
         height={task.height}
         progressX={task.progressX}
@@ -32,9 +36,7 @@ export const Bar: React.FC<TaskItemProps> = ({
         barCornerRadius={task.barCornerRadius}
         styles={task.styles}
         isSelected={isSelected}
-        onMouseDown={e => {
-          isDateChangeable && onEventStart("move", task, e);
-        }}
+        onMouseDown={isDateChangeable ? onMouseDownMove : undefined}
       />
       <g className="handleGroup">
         {isDateChangeable && (
@@ -43,32 +45,29 @@ export const Bar: React.FC<TaskItemProps> = ({
             <BarDateHandle
               x={task.x1 + 1}
               y={task.y + 1}
+              taskIndex={task.index}
               width={task.handleWidth}
               height={handleHeight}
               barCornerRadius={task.barCornerRadius}
-              onMouseDown={e => {
-                onEventStart("start", task, e);
-              }}
+              onMouseDown={onMouseDownStart}
             />
             {/* right */}
             <BarDateHandle
               x={task.x2 - task.handleWidth - 1}
               y={task.y + 1}
+              taskIndex={task.index}
               width={task.handleWidth}
               height={handleHeight}
               barCornerRadius={task.barCornerRadius}
-              onMouseDown={e => {
-                onEventStart("end", task, e);
-              }}
+              onMouseDown={onMouseDownEnd}
             />
           </g>
         )}
         {isProgressChangeable && (
           <BarProgressHandle
             progressPoint={progressPoint}
-            onMouseDown={e => {
-              onEventStart("progress", task, e);
-            }}
+            taskIndex={task.index}
+            onMouseDown={onMouseDownProgress}
           />
         )}
       </g>
