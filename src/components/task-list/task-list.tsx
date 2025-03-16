@@ -1,55 +1,56 @@
 import React, { useEffect, useRef } from "react";
-import {
-  Task,
-  TaskListHeaderProps,
-  TaskListTableProps,
-  VariantType,
-} from "../../types/public-types";
+import { Task, TaskListTableProps } from "../../types/public-types";
 
-import { BarTask } from "../../types/bar-task";
+import { useGanttStore } from "../gantt/gantt-context";
+import { useShallow } from "zustand/react/shallow";
 
 export type TaskListProps = {
-  headerHeight: number;
   rowWidth: string;
-  fontFamily: string;
-  fontSize: string;
-  rowHeight: number;
-  ganttHeight: number;
-  scrollY: number;
-  locale: string;
-  tasks: Task[];
-  resources: string[];
-  variant: VariantType;
   taskListRef: React.RefObject<HTMLDivElement>;
   horizontalContainerClass?: string;
-  selectedTask: BarTask | undefined;
-  setSelectedTask: (task: string) => void;
-  onExpanderClick: (task: Task) => void;
-  TaskListHeader: React.FC<TaskListHeaderProps>;
-  TaskListTable: React.FC<TaskListTableProps>;
 };
 
 export const TaskList: React.FC<TaskListProps> = ({
-  headerHeight,
-  fontFamily,
-  fontSize,
   rowWidth,
-  rowHeight,
-  scrollY,
-  tasks,
-  resources,
-  variant,
-  selectedTask,
-  setSelectedTask,
-  onExpanderClick,
-  locale,
-  ganttHeight,
   taskListRef,
   horizontalContainerClass,
-  TaskListHeader,
-  TaskListTable,
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
+  const [
+    headerHeight,
+    fontFamily,
+    fontSize,
+    rowHeight,
+    scrollY,
+    tasks,
+    resources,
+    variant,
+    onExpanderClick,
+    locale,
+    ganttHeight,
+    TaskListHeader,
+    TaskListTable,
+    setSelectedTask,
+    selectedTask,
+  ] = useGanttStore(
+    useShallow(s => [
+      s.headerHeight,
+      s.fontFamily,
+      s.fontSize,
+      s.rowHeight,
+      s.scrollY,
+      s.tasks,
+      s.resources,
+      s.variant,
+      s.onExpanderClick,
+      s.locale,
+      s.ganttHeight,
+      s.TaskListHeader,
+      s.TaskListTable,
+      s.setSelectedTask,
+      s.selectedTask,
+    ])
+  );
   useEffect(() => {
     if (horizontalContainerRef.current) {
       horizontalContainerRef.current.scrollTop = scrollY;
@@ -64,7 +65,12 @@ export const TaskList: React.FC<TaskListProps> = ({
     variant,
   };
   const selectedTaskId = selectedTask ? selectedTask.id : "";
-  const tableProps = {
+  const handleExpanderClick = (task: Task) => {
+    if (onExpanderClick && task.hideChildren !== undefined) {
+      onExpanderClick({ ...task, hideChildren: !task.hideChildren });
+    }
+  };
+  const tableProps: TaskListTableProps = {
     rowHeight,
     rowWidth,
     fontFamily,
@@ -75,7 +81,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     locale,
     selectedTaskId: selectedTaskId,
     setSelectedTask,
-    onExpanderClick,
+    onExpanderClick: handleExpanderClick,
   };
 
   return (

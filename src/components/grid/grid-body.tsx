@@ -1,13 +1,10 @@
 import React, { ReactNode } from "react";
-import { Task, VariantType } from "../../types/public-types";
 
 import { addToDate } from "../../helpers/date-helper";
 import styles from "./grid.module.css";
 
 export type GridBodyProps = {
-  tasks: Task[];
-  resources: string[];
-  variant: VariantType;
+  rows: number;
   dates: Date[];
   svgWidth: number;
   rowHeight: number;
@@ -16,9 +13,7 @@ export type GridBodyProps = {
   rtl: boolean;
 };
 export const GridBody: React.FC<GridBodyProps> = ({
-  tasks,
-  resources,
-  variant,
+  rows,
   dates,
   rowHeight,
   svgWidth,
@@ -38,8 +33,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
       className={styles.gridRowLine}
     />,
   ];
-  const rowKeys = variant === "resource" ? resources : tasks.map(t => t.id);
-  for (const rowKey of rowKeys) {
+  for (let rowKey = 0; rowKey < rows; rowKey++) {
     gridRows.push(
       <rect
         key={"Row" + rowKey}
