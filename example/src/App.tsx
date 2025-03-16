@@ -1,9 +1,13 @@
 import "@rodcorsi/gantt-task-react/dist/index.css";
 
 import { Gantt, Task, ViewMode } from "@rodcorsi/gantt-task-react";
-import { getStartEndDateForProject, initTasks } from "./helper";
+import React, { Profiler } from "react";
+import {
+  createLongTasks,
+  getStartEndDateForProject,
+  initTasks,
+} from "./helper";
 
-import React from "react";
 import { ViewSwitcher } from "./components/view-switcher";
 
 // Custom styles component to demonstrate CSS variable overrides
@@ -35,7 +39,9 @@ const App = () => {
   const [tasks, setTasks] = React.useState<Task[]>(initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
   const [byResource, setByResouce] = React.useState(false);
+  const [isLimitedHeight, setIsLimitedHeight] = React.useState(false);
   const [useCustomTheme, setUseCustomTheme] = React.useState(false);
+  const [isLongTasks, setIsLongTasks] = React.useState(false);
 
   let columnWidth = 65;
   if (view === ViewMode.Year) {
@@ -105,7 +111,21 @@ const App = () => {
         isChecked={isChecked}
         byResource={byResource}
       />
-      <div style={{ marginBottom: "1rem", display: "inline-block" }}>
+      <div style={{ marginBottom: "1rem" }}>
+        <label
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isLimitedHeight}
+            onChange={() => setIsLimitedHeight(!isLimitedHeight)}
+          />
+          Limited Height
+        </label>
         <label
           style={{
             display: "inline-flex",
@@ -120,38 +140,51 @@ const App = () => {
           />
           Custom Theme
         </label>
+        <label
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isLongTasks}
+            onChange={() => {
+              setIsLongTasks(!isLongTasks);
+              if (isLongTasks) {
+                setTasks(initTasks());
+              } else {
+                setTasks(createLongTasks());
+              }
+            }}
+          />
+          Long Tasks
+        </label>
       </div>
-      <h3>Gantt With Unlimited Height</h3>
-      <Gantt
-        tasks={tasks}
-        variant={byResource ? "resource" : "task"}
-        viewMode={view}
-        onDateChange={handleTaskChange}
-        onDelete={handleTaskDelete}
-        onProgressChange={handleProgressChange}
-        onDoubleClick={handleDblClick}
-        onClick={handleClick}
-        onSelect={handleSelect}
-        onExpanderClick={handleExpanderClick}
-        listCellWidth={isChecked ? "155px" : ""}
-        columnWidth={columnWidth}
-      />
-      <h3>Gantt With Limited Height</h3>
-      <Gantt
-        tasks={tasks}
-        variant={byResource ? "resource" : "task"}
-        viewMode={view}
-        onDateChange={handleTaskChange}
-        onDelete={handleTaskDelete}
-        onProgressChange={handleProgressChange}
-        onDoubleClick={handleDblClick}
-        onClick={handleClick}
-        onSelect={handleSelect}
-        onExpanderClick={handleExpanderClick}
-        listCellWidth={isChecked ? "155px" : ""}
-        ganttHeight={300}
-        columnWidth={columnWidth}
-      />
+      <h3>{`Gantt With ${isLimitedHeight ? "Limited" : "Unlimited"} Height`}</h3>
+      <Profiler
+        id="gantt"
+        onRender={(_id, phase, actualDuration) => {
+          console.info(`phase:${phase} duration:${actualDuration}ms`);
+        }}
+      >
+        <Gantt
+          tasks={tasks}
+          variant={byResource ? "resource" : "task"}
+          viewMode={view}
+          onDateChange={handleTaskChange}
+          onDelete={handleTaskDelete}
+          onProgressChange={handleProgressChange}
+          onDoubleClick={handleDblClick}
+          onClick={handleClick}
+          onSelect={handleSelect}
+          onExpanderClick={handleExpanderClick}
+          listCellWidth={isChecked ? "155px" : ""}
+          columnWidth={columnWidth}
+          ganttHeight={isLimitedHeight ? 300 : undefined}
+        />
+      </Profiler>
     </div>
   );
 };

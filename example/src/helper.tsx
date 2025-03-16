@@ -118,3 +118,65 @@ export function getStartEndDateForProject(tasks: Task[], projectId: string) {
   }
   return [start, end];
 }
+
+// createLongTasks creates random 5000 tasks
+// date range of 2 months
+// time between 10minutes to 3 days
+// 100 resources
+// 500 projects
+export function createLongTasks(): Task[] {
+  const tasks: Task[] = [];
+  const currentDate = new Date();
+  const startDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  );
+  const endDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 2,
+    0
+  );
+
+  // Create resources array
+  const resources: string[] = [];
+  for (let i = 0; i < 100; i++) {
+    resources.push(`Resource ${i + 1}`);
+  }
+
+  // Create projects array
+  const projects: string[] = [];
+  for (let i = 0; i < 500; i++) {
+    projects.push(`Project ${i + 1}`);
+  }
+
+  // Create 5000 random tasks
+  for (let i = 0; i < 5000; i++) {
+    // Random start date within the 2 month range
+    const taskStart = new Date(
+      startDate.getTime() +
+        Math.random() * (endDate.getTime() - startDate.getTime())
+    );
+
+    // Random duration between 10 minutes and 3 days in milliseconds
+    const minDuration = 10 * 60 * 1000; // 10 minutes
+    const maxDuration = 3 * 24 * 60 * 60 * 1000; // 3 days
+    const duration = minDuration + Math.random() * (maxDuration - minDuration);
+
+    const taskEnd = new Date(taskStart.getTime() + duration);
+
+    tasks.push({
+      start: taskStart,
+      end: taskEnd,
+      name: `Task ${i + 1}`,
+      id: `Task ${i + 1}`,
+      progress: Math.floor(Math.random() * 100),
+      type: "task",
+      project: projects[Math.floor(Math.random() * projects.length)],
+      resource: resources[Math.floor(Math.random() * resources.length)],
+      displayOrder: i + 1,
+    });
+  }
+
+  return tasks;
+}
