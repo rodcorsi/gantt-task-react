@@ -12,6 +12,7 @@ import { TaskItem } from "../task-item/task-item";
 import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
 import { isKeyboardEvent } from "../../helpers/other-helper";
 import measureTextWidth from "../../helpers/measure-text-width";
+import { useGanttStore } from "./gantt-context";
 
 export type TaskGanttContentProps = {
   tasks: BarTask[];
@@ -66,6 +67,8 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   const [initEventX1Delta, setInitEventX1Delta] = useState(0);
   const [isMoving, setIsMoving] = useState(false);
   const textMeasure = measureTextWidth(fontSize, fontFamily);
+  const setTooltipTask = useGanttStore(state => state.setTooltipTask);
+
   // create xStep
   useEffect(() => {
     const dateDelta =
@@ -213,11 +216,11 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   };
   const handleOnMouseEnter: React.MouseEventHandler<SVGGElement> = e => {
     const task = getTaskByIndex(e.currentTarget.dataset.task_index);
-    task && handleBarEventStart("mouseenter", task, e);
+    task && setTooltipTask(task);
   };
   const handleOnMouseLeave: React.MouseEventHandler<SVGGElement> = e => {
     const task = getTaskByIndex(e.currentTarget.dataset.task_index);
-    task && handleBarEventStart("mouseleave", task, e);
+    task && setTooltipTask(null);
   };
   const handleOnDoubleClick: React.MouseEventHandler<SVGGElement> = e => {
     const task = getTaskByIndex(e.currentTarget.dataset.task_index);
@@ -276,19 +279,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       }
     }
     // Mouse Events
-    else if (action === "mouseenter") {
-      if (!ganttEvent.action) {
-        setGanttEvent({
-          action,
-          changedTask: task,
-          originalSelectedTask: task,
-        });
-      }
-    } else if (action === "mouseleave") {
-      if (ganttEvent.action === "mouseenter") {
-        setGanttEvent({ action: "" });
-      }
-    } else if (action === "dblclick") {
+    else if (action === "dblclick") {
       !!onDoubleClick && onDoubleClick(task);
     } else if (action === "click") {
       !!onClick && onClick(task);

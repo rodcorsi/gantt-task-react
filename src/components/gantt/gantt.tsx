@@ -1,4 +1,5 @@
 import { GanttProps, Task, ViewMode } from "../../types/public-types";
+import { GanttStoreProvider, useGanttStore } from "./gantt-context";
 import React, {
   SyntheticEvent,
   useEffect,
@@ -6,7 +7,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { StandardTooltipContent, Tooltip } from "../other/tooltip";
+import {
+  StandardTooltipContent,
+  Tooltip,
+  TooltipProps,
+} from "../other/tooltip";
 import { TaskList, TaskListProps } from "../task-list/task-list";
 import { ganttDateRange, seedDates } from "../../helpers/date-helper";
 import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
@@ -26,7 +31,15 @@ import { convertToBarTasks } from "../../helpers/bar-helper";
 import styles from "./gantt.module.css";
 import tasksToResources from "../../helpers/tasks-to-resources";
 
-export const Gantt: React.FunctionComponent<GanttProps> = ({
+export const Gantt: React.FC<GanttProps> = props => {
+  return (
+    <GanttStoreProvider>
+      <GanttContent {...props} />
+    </GanttStoreProvider>
+  );
+};
+
+export const GanttContent: React.FC<GanttProps> = ({
   tasks,
   headerHeight = 50,
   columnWidth = 60,
@@ -480,24 +493,21 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
           scrollY={scrollY}
           scrollX={scrollX}
         />
-        {ganttEvent.changedTask && (
-          <Tooltip
-            arrowIndent={arrowIndent}
-            rowHeight={rowHeight}
-            svgContainerHeight={svgContainerHeight}
-            svgContainerWidth={svgContainerWidth}
-            fontFamily={fontFamily}
-            fontSize={fontSize}
-            scrollX={scrollX}
-            scrollY={scrollY}
-            task={ganttEvent.changedTask}
-            headerHeight={headerHeight}
-            taskListWidth={taskListWidth}
-            TooltipContent={TooltipContent}
-            rtl={rtl}
-            svgWidth={svgWidth}
-          />
-        )}
+        <TooltipContext
+          arrowIndent={arrowIndent}
+          rowHeight={rowHeight}
+          svgContainerHeight={svgContainerHeight}
+          svgContainerWidth={svgContainerWidth}
+          fontFamily={fontFamily}
+          fontSize={fontSize}
+          scrollX={scrollX}
+          scrollY={scrollY}
+          headerHeight={headerHeight}
+          taskListWidth={taskListWidth}
+          TooltipContent={TooltipContent}
+          rtl={rtl}
+          svgWidth={svgWidth}
+        />
         <VerticalScroll
           ganttFullHeight={ganttFullHeight}
           ganttHeight={ganttHeight}
@@ -516,4 +526,12 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
       />
     </div>
   );
+};
+
+const TooltipContext: React.FC<Omit<TooltipProps, "task">> = props => {
+  const tooltipTask = useGanttStore(state => state.tooltipTask);
+  if (!tooltipTask) {
+    return null;
+  }
+  return <Tooltip {...props} task={tooltipTask} />;
 };
