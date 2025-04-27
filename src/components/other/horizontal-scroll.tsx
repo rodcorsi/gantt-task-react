@@ -1,20 +1,24 @@
-import React, { SyntheticEvent, useRef, useEffect } from "react";
+import React, { SyntheticEvent, useEffect, useRef } from "react";
+
 import styles from "./horizontal-scroll.module.css";
+import { useGanttStoreState } from "../gantt/gantt-context";
 
 export const HorizontalScroll: React.FC<{
-  scroll: number;
   svgWidth: number;
   taskListWidth: number;
   rtl: boolean;
   onScroll: (event: SyntheticEvent<HTMLDivElement>) => void;
-}> = ({ scroll, svgWidth, taskListWidth, rtl, onScroll }) => {
+}> = ({ svgWidth, taskListWidth, rtl, onScroll }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const store = useGanttStoreState();
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scroll;
-    }
-  }, [scroll]);
+    const unsubscribe = store.subscribe((state, prevState) => {
+      if (state.scrollX != prevState.scrollX && scrollRef.current) {
+        scrollRef.current.scrollLeft = state.scrollX;
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <div

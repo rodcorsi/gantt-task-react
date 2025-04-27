@@ -1,5 +1,9 @@
 import { GanttProps, Task, ViewMode } from "../../types/public-types";
-import { GanttStoreProvider, useGanttStore } from "./gantt-context";
+import {
+  GanttStoreProvider,
+  useGanttStore,
+  useGanttStoreState,
+} from "./gantt-context";
 import React, {
   SyntheticEvent,
   useEffect,
@@ -39,6 +43,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 };
 
+let ignoreScrollEvent = false;
 export const GanttContent: React.FC<GanttProps> = ({
   tasks,
   headerHeight = 50,
@@ -107,9 +112,9 @@ export const GanttContent: React.FC<GanttProps> = ({
   const [selectedTask, setSelectedTask] = useState<BarTask>();
   const [failedTask, setFailedTask] = useState<BarTask | null>(null);
 
-  const [scrollY, setScrollY] = useState(0);
-  const [scrollX, setScrollX] = useState(-1);
-  const [ignoreScrollEvent, setIgnoreScrollEvent] = useState(false);
+  const store = useGanttStoreState();
+  const setScrollY = useGanttStore(state => state.setScrollY);
+  const setScrollX = useGanttStore(state => state.setScrollX);
 
   const resources = variant === "resource" ? tasksToResources(tasks) : [];
   const ganttFullHeight =
@@ -133,7 +138,7 @@ export const GanttContent: React.FC<GanttProps> = ({
     let newDates = seedDates(startDate, endDate, viewMode);
     if (rtl) {
       newDates = newDates.reverse();
-      if (scrollX === -1) {
+      if (store.get().scrollX === -1) {
         setScrollX(newDates.length * columnWidth);
       }
     }
@@ -181,7 +186,7 @@ export const GanttContent: React.FC<GanttProps> = ({
     milestoneBackgroundColor,
     milestoneBackgroundSelectedColor,
     rtl,
-    scrollX,
+    store,
     onExpanderClick,
   ]);
 
@@ -278,6 +283,7 @@ export const GanttContent: React.FC<GanttProps> = ({
   // scroll events
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
+      const { scrollX, scrollY } = store.get();
       if (event.shiftKey || event.deltaX) {
         const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
         let newScrollX = scrollX + scrollMove;
@@ -301,7 +307,7 @@ export const GanttContent: React.FC<GanttProps> = ({
         }
       }
 
-      setIgnoreScrollEvent(true);
+      ignoreScrollEvent = true;
     };
 
     // subscribe if scroll is necessary
@@ -311,31 +317,29 @@ export const GanttContent: React.FC<GanttProps> = ({
     return () => {
       wrapperRef.current?.removeEventListener("wheel", handleWheel);
     };
-  }, [
-    wrapperRef,
-    scrollY,
-    scrollX,
-    ganttHeight,
-    svgWidth,
-    rtl,
-    ganttFullHeight,
-  ]);
+  }, [wrapperRef, store, ganttHeight, svgWidth, rtl, ganttFullHeight]);
 
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
-    if (scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent) {
+    if (
+      store.get().scrollY !== event.currentTarget.scrollTop &&
+      !ignoreScrollEvent
+    ) {
       setScrollY(event.currentTarget.scrollTop);
-      setIgnoreScrollEvent(true);
+      ignoreScrollEvent = true;
     } else {
-      setIgnoreScrollEvent(false);
+      ignoreScrollEvent = false;
     }
   };
 
   const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
-    if (scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent) {
+    if (
+      store.get().scrollX !== event.currentTarget.scrollLeft &&
+      !ignoreScrollEvent
+    ) {
       setScrollX(event.currentTarget.scrollLeft);
-      setIgnoreScrollEvent(true);
+      ignoreScrollEvent = true;
     } else {
-      setIgnoreScrollEvent(false);
+      ignoreScrollEvent = false;
     }
   };
 
@@ -344,6 +348,7 @@ export const GanttContent: React.FC<GanttProps> = ({
    */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     event.preventDefault();
+    const { scrollX, scrollY } = store.get();
     let newScrollY = scrollY;
     let newScrollX = scrollX;
     let isX = true;
@@ -382,7 +387,7 @@ export const GanttContent: React.FC<GanttProps> = ({
       }
       setScrollY(newScrollY);
     }
-    setIgnoreScrollEvent(true);
+    ignoreScrollEvent = true;
   };
 
   /**
@@ -466,7 +471,6 @@ export const GanttContent: React.FC<GanttProps> = ({
     variant,
     locale,
     headerHeight,
-    scrollY,
     ganttHeight,
     horizontalContainerClass: styles.horizontalContainer,
     selectedTask,
@@ -490,8 +494,6 @@ export const GanttContent: React.FC<GanttProps> = ({
           calendarProps={calendarProps}
           barProps={barProps}
           ganttHeight={ganttHeight}
-          scrollY={scrollY}
-          scrollX={scrollX}
         />
         <TooltipContext
           arrowIndent={arrowIndent}
@@ -500,8 +502,6 @@ export const GanttContent: React.FC<GanttProps> = ({
           svgContainerWidth={svgContainerWidth}
           fontFamily={fontFamily}
           fontSize={fontSize}
-          scrollX={scrollX}
-          scrollY={scrollY}
           headerHeight={headerHeight}
           taskListWidth={taskListWidth}
           TooltipContent={TooltipContent}
@@ -512,7 +512,6 @@ export const GanttContent: React.FC<GanttProps> = ({
           ganttFullHeight={ganttFullHeight}
           ganttHeight={ganttHeight}
           headerHeight={headerHeight}
-          scroll={scrollY}
           onScroll={handleScrollY}
           rtl={rtl}
         />
@@ -520,7 +519,6 @@ export const GanttContent: React.FC<GanttProps> = ({
       <HorizontalScroll
         svgWidth={svgWidth}
         taskListWidth={taskListWidth}
-        scroll={scrollX}
         rtl={rtl}
         onScroll={handleScrollX}
       />
@@ -528,10 +526,21 @@ export const GanttContent: React.FC<GanttProps> = ({
   );
 };
 
-const TooltipContext: React.FC<Omit<TooltipProps, "task">> = props => {
+const TooltipContext: React.FC<
+  Omit<TooltipProps, "task" | "scrollX" | "scrollY">
+> = props => {
   const tooltipTask = useGanttStore(state => state.tooltipTask);
+  const store = useGanttStoreState();
   if (!tooltipTask) {
     return null;
   }
-  return <Tooltip {...props} task={tooltipTask} />;
+  const { scrollX, scrollY } = store.get();
+  return (
+    <Tooltip
+      {...props}
+      scrollX={scrollX}
+      scrollY={scrollY}
+      task={tooltipTask}
+    />
+  );
 };

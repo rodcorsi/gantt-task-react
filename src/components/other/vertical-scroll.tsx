@@ -1,28 +1,25 @@
-import React, { SyntheticEvent, useRef, useEffect } from "react";
+import React, { SyntheticEvent, useEffect, useRef } from "react";
+
 import styles from "./vertical-scroll.module.css";
+import { useGanttStoreState } from "../gantt/gantt-context";
 
 export const VerticalScroll: React.FC<{
-  scroll: number;
   ganttHeight: number;
   ganttFullHeight: number;
   headerHeight: number;
   rtl: boolean;
   onScroll: (event: SyntheticEvent<HTMLDivElement>) => void;
-}> = ({
-  scroll,
-  ganttHeight,
-  ganttFullHeight,
-  headerHeight,
-  rtl,
-  onScroll,
-}) => {
+}> = ({ ganttHeight, ganttFullHeight, headerHeight, rtl, onScroll }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const store = useGanttStoreState();
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scroll;
-    }
-  }, [scroll]);
+    const unsubscribe = store.subscribe((state, prevState) => {
+      if (state.scrollY != prevState.scrollY && scrollRef.current) {
+        scrollRef.current.scrollTop = state.scrollY;
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <div

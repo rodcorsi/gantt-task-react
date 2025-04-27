@@ -7,6 +7,7 @@ import {
 } from "../../types/public-types";
 
 import { BarTask } from "../../types/bar-task";
+import { useGanttStoreState } from "../gantt/gantt-context";
 
 export type TaskListProps = {
   headerHeight: number;
@@ -15,7 +16,6 @@ export type TaskListProps = {
   fontSize: string;
   rowHeight: number;
   ganttHeight: number;
-  scrollY: number;
   locale: string;
   tasks: Task[];
   resources: string[];
@@ -35,7 +35,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   fontSize,
   rowWidth,
   rowHeight,
-  scrollY,
   tasks,
   resources,
   variant,
@@ -50,11 +49,18 @@ export const TaskList: React.FC<TaskListProps> = ({
   TaskListTable,
 }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
+  const store = useGanttStoreState();
   useEffect(() => {
-    if (horizontalContainerRef.current) {
-      horizontalContainerRef.current.scrollTop = scrollY;
-    }
-  }, [scrollY]);
+    const unsubscribe = store.subscribe((state, prevState) => {
+      if (
+        state.scrollY != prevState.scrollY &&
+        horizontalContainerRef.current
+      ) {
+        horizontalContainerRef.current.scrollTop = state.scrollY;
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const headerProps = {
     headerHeight,

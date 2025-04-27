@@ -6,12 +6,20 @@ import { BarTask } from "../../types/bar-task";
 export type GanttState = {
   tooltipTask?: BarTask | null;
   setTooltipTask: (task?: BarTask | null) => void;
+  scrollY: number;
+  setScrollY: (y: number) => void;
+  scrollX: number;
+  setScrollX: (y: number) => void;
 };
 
 function createGanttStore() {
   return createStore<GanttState>(set => ({
     tooltipTask: undefined,
     setTooltipTask: task => set(state => ({ ...state, tooltipTask: task })),
+    scrollY: 0,
+    setScrollY: scrollY => set(state => ({ ...state, scrollY })),
+    scrollX: -1,
+    setScrollX: scrollX => set(state => ({ ...state, scrollX })),
   }));
 }
 

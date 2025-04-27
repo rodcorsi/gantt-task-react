@@ -4,40 +4,42 @@ import React, { useEffect, useRef } from "react";
 import { TaskGanttContent, TaskGanttContentProps } from "./task-gantt-content";
 
 import styles from "./gantt.module.css";
+import { useGanttStoreState } from "./gantt-context";
 
 export type TaskGanttProps = {
   gridProps: GridProps;
   calendarProps: CalendarProps;
   barProps: TaskGanttContentProps;
   ganttHeight: number;
-  scrollY: number;
-  scrollX: number;
 };
 export const TaskGantt: React.FC<TaskGanttProps> = ({
   gridProps,
   calendarProps,
   barProps,
   ganttHeight,
-  scrollY,
-  scrollX,
 }) => {
   const ganttSVGRef = useRef<SVGSVGElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   const verticalGanttContainerRef = useRef<HTMLDivElement>(null);
+  const store = useGanttStoreState();
   const newBarProps = { ...barProps, svg: ganttSVGRef };
-
   useEffect(() => {
-    if (horizontalContainerRef.current) {
-      horizontalContainerRef.current.scrollTop = scrollY;
-    }
-  }, [scrollY]);
-
-  useEffect(() => {
-    if (verticalGanttContainerRef.current) {
-      verticalGanttContainerRef.current.scrollLeft = scrollX;
-    }
-  }, [scrollX]);
-
+    const unsubscribe = store.subscribe((state, prevState) => {
+      if (
+        state.scrollY != prevState.scrollY &&
+        horizontalContainerRef.current
+      ) {
+        horizontalContainerRef.current.scrollTop = state.scrollY;
+      }
+      if (
+        state.scrollX != prevState.scrollX &&
+        verticalGanttContainerRef.current
+      ) {
+        verticalGanttContainerRef.current.scrollLeft = state.scrollX;
+      }
+    });
+    return unsubscribe;
+  }, []);
   return (
     <div
       className={styles.ganttVerticalContainer}
