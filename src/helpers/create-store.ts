@@ -5,25 +5,26 @@ type StateCreator<T> = (set: (fn: (prev: T) => T) => void, get: () => T) => T;
 export type StoreApi<T> = {
   get: () => T;
   set: (fn: (prev: T) => T) => void;
-  subscribe: (listener: () => void) => () => void;
+  subscribe: (listener: (state: T, prevState: T) => void) => () => void;
 };
 
 export default function createStore<T>(creator: StateCreator<T>): StoreApi<T> {
   let state: T;
-  const listeners = new Set<() => void>();
+  const listeners = new Set<(state: T, prevState: T) => void>();
 
   const get = () => state;
   const set = (fn: (prev: T) => T) => {
+    const prevState = state;
     const next = fn(state);
     if (next !== state) {
       state = next;
-      listeners.forEach(l => l());
+      listeners.forEach(l => l(state, prevState));
     }
   };
 
   state = creator(set, get);
 
-  const subscribe = (listener: () => void) => {
+  const subscribe = (listener: (state: T, prevState: T) => void) => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   };
@@ -40,7 +41,7 @@ export function useStore<T, U>(
     [store, selector]
   );
   const subscribe = useCallback(
-    (callback: () => void) => store.subscribe(callback),
+    (callback: (state: T, prevState: T) => void) => store.subscribe(callback),
     [store]
   );
   return useSyncExternalStore(subscribe, getSnapshot);
