@@ -5,7 +5,10 @@
   "author": "Rodrigo Corsi <rodrigo.corsi@gmail.com>",
   "homepage": "https://github.com/rodcorsi/gantt-task-react",
   "license": "MIT",
-  "repository": "rodcorsi/gantt-task-react",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rodcorsi/gantt-task-react.git"
+  },
   "main": "dist/gantt-task-react.umd.js",
   "module": "dist/gantt-task-react.es.js",
   "style": "dist/gantt-task-react.css",
